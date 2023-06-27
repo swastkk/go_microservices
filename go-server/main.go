@@ -44,11 +44,16 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 	rnd.HTML(w, http.StatusOK, "form", nil)
 }
 
+func contactHandler(w http.ResponseWriter, r *http.Request) {
+	rnd.HTML(w, http.StatusOK, "contact", nil)
+}
+
 func main() {
 	fileserver := http.FileServer(http.Dir("./static"))
 	http.Handle("/", fileserver)
 	http.HandleFunc("/form", formHandler)
 	http.HandleFunc("/hello", helloHandler)
+	http.HandleFunc("/contact", contactHandler)
 	// rnd = renderer.New(opts)
 	fmt.Printf("Server starting on port 7000\n")
 	if err := http.ListenAndServe(":7000", nil); err != nil {
