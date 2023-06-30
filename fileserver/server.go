@@ -3,18 +3,20 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 )
 
 // Here is the detailed implementation of the FileServer Code.
 
 func main() {
 	dir := http.Dir("./public/")
-	fmt.Printf("This is the dir: %s\n", dir)
+	fmt.Printf("This is the directory which is being served: %s\n", dir)
 	dirHandler := http.FileServer(dir)
 	http.Handle("/", dirHandler)
 	fmt.Print("Fileserver is up and running at port 5000...\n ")
+	u := url.PathEscape("http://localhost:5000")
+	fmt.Printf("Check here: %v\n", u)
 	http.ListenAndServe(":5000", nil)
-
 }
 
 // Can implement the code in the shorter format like this! Both works same.
