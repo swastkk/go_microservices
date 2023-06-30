@@ -9,41 +9,46 @@ import (
 	"github.com/gocolly/colly"
 )
 
-type Quote struct {
-	Quote  string
-	Author string
+type Repo struct {
+	Name        string
+	Desc        string
+	Technology  string
+	LastUpdated string
 }
 
 func main() {
-	var quotes []Quote
+	var quotes []Repo
 	c := colly.NewCollector()
-	colly.AllowedDomains("quotes.toscrape.com")
+	colly.AllowedDomains("github.com")
 	c.OnRequest(func(r *colly.Request) {
 		r.Headers.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/114.0")
-		fmt.Println("Visting a URL", r.URL)
+		fmt.Println("URL to Scrape data: ", r.URL)
 	})
 
-	c.OnResponse(func(r *colly.Response) {
-		fmt.Println("Response Code", r.StatusCode) // To check the status code of the response of the website which is to be scraped!
-	})
-
+	// If any error occurs
 	c.OnError(func(r *colly.Response, err error) {
 		fmt.Println("Error", err.Error())
 	})
-	c.OnHTML(".quote", func(h *colly.HTMLElement) {
+
+	//
+	c.OnHTML(".d-inline-block", func(h *colly.HTMLElement) {
 		div := h.DOM
-		quote := div.Find(".text").Text()
-		author := div.Find(".author").Text()
-		q := Quote{
-			Quote:  quote,
-			Author: author,
+		name := div.Find("[itemprop='name codeRepository']").First().Text()
+		desc := div.Find("[itemprop='description']").First().Text()
+		lang := div.Find("[itemprop='programmingLanguage']").First().Text()
+		time := div.Find("relative-time").First().Text()
+		q := Repo{
+			Name:        name,
+			Desc:        desc,
+			Technology:  lang,
+			LastUpdated: time,
 		}
 		quotes = append(quotes, q)
-
 	})
 
-	c.Visit("https://quotes.toscrape.com/")
+	c.Visit("https://github.com/swastkk?tab=repositories")
 
+	// Creating a CSV file to store the Scraped Data
 	csvFile, err := os.Create("quotes.csv")
 	if err != nil {
 		log.Fatalf("Failed in creating File: %s", err)
@@ -52,14 +57,14 @@ func main() {
 	defer csvWriter.Flush()
 
 	// Header for the csv file!
-	header := []string{"Quote", "Author"}
+	header := []string{"Name", "Description", "Technology", "Last Updated"}
 	err = csvWriter.Write(header)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// Writing the data rows
-	for _, quotes := range quotes {
-		row := []string{quotes.Quote, quotes.Author}
+	for _, q := range quotes {
+		row := []string{q.Name, q.Desc, q.Technology, q.LastUpdated}
 		err = csvWriter.Write(row)
 		if err != nil {
 			log.Fatal(err)
