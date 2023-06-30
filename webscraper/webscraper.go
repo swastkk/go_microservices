@@ -1,7 +1,10 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/gocolly/colly"
 )
@@ -40,5 +43,27 @@ func main() {
 	})
 
 	c.Visit("https://quotes.toscrape.com/")
-	fmt.Println(quotes)
+
+	csvFile, err := os.Create("quotes.csv")
+	if err != nil {
+		log.Fatalf("Failed in creating File: %s", err)
+	}
+	csvWriter := csv.NewWriter(csvFile)
+	defer csvWriter.Flush()
+
+	// Header for the csv file!
+	header := []string{"Quote", "Author"}
+	err = csvWriter.Write(header)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Writing the data rows
+	for _, quotes := range quotes {
+		row := []string{quotes.Quote, quotes.Author}
+		err = csvWriter.Write(row)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	log.Println("CSV file created successfully")
 }
