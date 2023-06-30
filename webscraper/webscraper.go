@@ -49,7 +49,7 @@ func main() {
 	c.Visit("https://github.com/swastkk?tab=repositories")
 
 	// Creating a CSV file to store the Scraped Data
-	csvFile, err := os.Create("quotes.csv")
+	csvFile, err := os.Create("data.csv")
 	if err != nil {
 		log.Fatalf("Failed in creating File: %s", err)
 	}
