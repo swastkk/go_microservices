@@ -10,7 +10,7 @@ It will print `hasMX= true` if Mail exchanger record is there and `sprRecord` if
 ## Screenshots
 ---
 
-![img1](/ss2.png)
+![img1](ss2.png)
 
-![img1](/ss1.png)
+![img1](ss1.png)
 
