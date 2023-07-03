@@ -11,13 +11,14 @@ import (
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Print("domain, hasMX, hasSPF, sprRecord, dmarcRecord\n")
+	fmt.Print("Enter a domain which you want to verify! \n")
 	for scanner.Scan() {
 		checkDomain(scanner.Text())
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Fatal("Error: Could not read from input- %v", err)
+		log.Printf("Error: Could not read from input- %v", err)
+		os.Exit(1)
 	}
 }
 
@@ -27,6 +28,7 @@ func checkDomain(domain string) {
 	mxRecords, err := net.LookupMX(domain)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
+		os.Exit(1)
 	}
 	if len(mxRecords) > 0 {
 		hasMX = true
@@ -34,6 +36,7 @@ func checkDomain(domain string) {
 	textRecords, err := net.LookupTXT(domain)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
+		os.Exit(1)
 	}
 	for _, record := range textRecords {
 		if strings.HasPrefix(record, "v=spf1") {
@@ -46,6 +49,7 @@ func checkDomain(domain string) {
 	dmarcRecords, err := net.LookupTXT("_dmarc." + domain)
 	if err != nil {
 		log.Printf("Error: %v\n", err)
+		os.Exit(1)
 	}
 	for _, record := range dmarcRecords {
 		if strings.HasPrefix(record, "v=DMARC1") {
@@ -54,6 +58,8 @@ func checkDomain(domain string) {
 			break
 		}
 	}
+	fmt.Print("\n")
+	fmt.Printf("Domain, hasMX, hasSPF, sprRecord, hasDmarc, dmarcRecord\n")
 	fmt.Printf("%v, %v, %v, %v, %v, %v\n", domain, hasMX, hasSPF, sprRecord, hasDmarc, dmarcRecord)
 	fmt.Print("\n")
 	fmt.Printf("So Email verifier tool has done its work!\n")
